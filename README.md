@@ -188,8 +188,7 @@ Imposter skips classes that on global namespace, for example: `ArrayObject`, `Ru
 
 ### How about packages that don't use namespaces?
 
-Not for now.
-Tell me your idea by [opening an issue](https://github.com/TypistTech/imposter/issues/new)
+Packages without a namespace will have a namespace appended to them.
 
 ### How about packages that use fully qualified name?
 

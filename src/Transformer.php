@@ -33,7 +33,7 @@ final class Transformer implements TransformerInterface
     /**
      * Transformer constructor.
      *
-     * @param string              $namespacePrefix
+     * @param string $namespacePrefix
      * @param FilesystemInterface $filesystem
      */
     public function __construct(string $namespacePrefix, FilesystemInterface $filesystem)
@@ -93,7 +93,49 @@ final class Transformer implements TransformerInterface
         );
         $replacement = sprintf('%1$s %2$s', 'namespace', $this->namespacePrefix);
 
-        $this->replace($pattern, $replacement, $targetFile);
+        if ($this->hasNamespace($targetFile)) {
+            $this->replace($pattern, $replacement, $targetFile);
+        } else {
+            $this->addNamespace($targetFile);
+        }
+    }
+
+
+    /**
+     * Determine if namespace exists.
+     *
+     * @param string $targetFile
+     *
+     * @return bool
+     */
+    private function hasNamespace(string $targetFile)
+    {
+        return (bool)preg_match('/namespace\s+[\w\d_\\\\]*;/', $this->filesystem->get($targetFile));
+    }
+
+    /**
+     * Add namespace to file.
+     *
+     * @param string $targetFile
+     */
+    private function addNamespace(string $targetFile)
+    {
+        $pattern = '/<\?php\s+/';
+
+        $replacement = sprintf(
+            '<?php' . "\n\n" . '%1$s %2$s;' . "\n\n",
+            'namespace',
+            substr($this->namespacePrefix, 0, -2)
+        );
+
+        $this->filesystem->put(
+            $targetFile,
+            preg_replace(
+                $pattern,
+                $replacement,
+                $this->filesystem->get($targetFile)
+            )
+        );
     }
 
     /**

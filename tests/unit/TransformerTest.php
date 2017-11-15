@@ -18,6 +18,11 @@ class TransformerTest extends \Codeception\Test\Unit
     private $dummyFile;
 
     /**
+     * @var
+     */
+    private $dummyFileNoNamespace;
+
+    /**
      * @covers \TypistTech\Imposter\Transformer
      */
     public function testPrefixNamespace()
@@ -31,6 +36,22 @@ class TransformerTest extends \Codeception\Test\Unit
         $tester->dontSeeInThisFile('namespace Dummy');
         $tester->seeInThisFile('namespace MyPlugin\Vendor\Dummy\File;');
     }
+
+
+    /**
+     * @covers \TypistTech\Imposter\Transformer
+     */
+    public function testAddNamespace()
+    {
+        $tester = $this->tester;
+
+        $transformer = new Transformer('MyPlugin\Vendor', new Filesystem);
+        $transformer->transform($this->dummyFileNoNamespace);
+
+        $tester->openFile($this->dummyFileNoNamespace);
+        $tester->seeInThisFile('namespace MyPlugin\Vendor;');
+    }
+
 
     /**
      * @covers \TypistTech\Imposter\Transformer
@@ -152,6 +173,7 @@ class TransformerTest extends \Codeception\Test\Unit
 
     protected function _before()
     {
-        $this->dummyFile = codecept_data_dir('tmp-vendor/dummy/dummy/DummyClass.php');
+        $this->dummyFile            = codecept_data_dir('tmp-vendor/dummy/dummy/DummyClass.php');
+        $this->dummyFileNoNamespace = codecept_data_dir('tmp-vendor/dummy/dummy/DummyClassNoNamespace.php');
     }
 }
